@@ -1,19 +1,19 @@
 // PINs
-const int number_of_leds = 8;
-const int led[] = {2,3,4,5,6,7,8,9}; 
-const int trigger = A0;
-const int echo = A1;
+const int cNumberOfLeds = 8;
+const int cLed[] = {2,3,4,5,6,7,8,9}; 
+const int cTrigger = A0;
+const int cEcho = A1;
 
 // Grenzwerte
-const unsigned int duration_max = 1176; // ca. 200mm
-unsigned int duration_min = duration_max - 1;
-const unsigned int hold_duration = 500; // LEDs bleiben 500ms an
+const unsigned int cHoldDuration = 500; // LEDs bleiben 500ms an
+const unsigned int cDurationMax = 1176; // ca. 200mm
+unsigned int duration_min = cDurationMax - 1;
 unsigned long start_time = 0;
 byte hold_led = 0;
 
 // Messwerte
-const unsigned int buffer_size_ = 3; // Für die Glättung der Eingangsmesswerte
-unsigned int buffer_[buffer_size_];
+const unsigned int cBufferSize = 3; // Für die Glättung der Eingangsmesswerte
+unsigned int buffer_[cBufferSize];
 byte buffer_ptr_ = 0;
 
 unsigned int duration = 0; // Dauer des Impulses vom Ultraschallsensor
@@ -24,13 +24,13 @@ void setup()
   Serial.begin(115200);  
   Serial.println("");
 
-  pinMode(trigger,OUTPUT);
-  pinMode(echo,INPUT);
-  digitalWrite(trigger, HIGH);
+  pinMode(cTrigger,OUTPUT);
+  pinMode(cEcho,INPUT);
+  digitalWrite(cTrigger, HIGH);
 
-  for(int i = 0; i < number_of_leds; i++)
+  for(int i = 0; i < cNumberOfLeds; i++)
   {
-    pinMode(led[i],OUTPUT);
+    pinMode(cLed[i],OUTPUT);
   }
   
 }
@@ -38,28 +38,28 @@ void setup()
 void loop()
 {
 // Ultaschallsensor einlesen
-  digitalWrite(trigger, LOW);
-  duration = pulseIn(echo, HIGH);
-  digitalWrite(trigger, HIGH);
+  digitalWrite(cTrigger, LOW);
+  duration = pulseIn(cEcho, HIGH);
+  digitalWrite(cTrigger, HIGH);
   if ((duration < duration_min) && (duration > 250))
   {
     duration_min = duration;
   }
 // Messwert begrenzen  
-  duration = constrain(duration, duration_min, duration_max);
+  duration = constrain(duration, duration_min, cDurationMax);
 // Messwert glätten
   buffer_[buffer_ptr_] = duration;
   buffer_ptr_++;
-  buffer_ptr_ %= buffer_size_;
+  buffer_ptr_ %= cBufferSize;
   duration = 0;
-  for (byte i = 0; i < buffer_size_; i++)
+  for (byte i = 0; i < cBufferSize; i++)
   {
     duration += buffer_[i];
   }
-  duration /= buffer_size_;
+  duration /= cBufferSize;
 
 // Wieviele LEDs müssen leuchten
-  unsigned int value = map(duration, duration_max, duration_min + 20, 0, number_of_leds);
+  unsigned int value = map(duration, cDurationMax, duration_min + 20, 0, cNumberOfLeds);
   
 // Hold berechnen  
   if (value >= hold_led)
@@ -67,7 +67,7 @@ void loop()
     hold_led = value;
     start_time = millis(); 
   }
-  if ((start_time + hold_duration) < millis())
+  if ((start_time + cHoldDuration) < millis())
   {
     hold_led = 0; 
   }
@@ -78,7 +78,7 @@ void loop()
   Serial.print(" \tDuration Min: ");
   Serial.print(duration_min);
   Serial.print(" \tDuration Max: ");
-  Serial.print(duration_max);
+  Serial.print(cDurationMax);
   Serial.print(" \tstart_time: ");
   Serial.print(start_time);
   Serial.print(" \thold_led: ");
@@ -87,9 +87,9 @@ void loop()
   Serial.println(value);
     
 // LEDs ansteuern
-  for (int i = 0; i < number_of_leds; i++)
+  for (int i = 0; i < cNumberOfLeds; i++)
   {
-    digitalWrite(led[i], hold_led > i);
+    digitalWrite(cLed[i], hold_led > i);
   }
 
 // Pause bis zur nächsten Messung
